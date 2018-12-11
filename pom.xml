@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.pentaho</groupId>
+    <artifactId>pentaho-ce-bundle-parent-pom</artifactId>
+    <version>9.0.0.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.hitachivantara</groupId>
+  <artifactId>spoon-recorder</artifactId>
+  <version>1.0.0.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+
+  <name>Spoon Recorder Thingy</name>
+  <description>a Hitachi Vantara sponsored open source project</description>
+  <url>http://www.hitachivantara.org</url>
+
+  <properties>
+    <pdi.version>9.0.0.0-SNAPSHOT</pdi.version>
+    <pentaho-osgi-bundles.version>9.0.0.0-SNAPSHOT</pentaho-osgi-bundles.version>
+    <mockito-core.version>1.9.5</mockito-core.version>
+    <jooq.version>0.9.13</jooq.version>
+    <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
+    <slf4j-api.version>1.7.7</slf4j-api.version>
+  </properties>
+
+
+  <scm>
+    <developerConnection>https://github.com/mkambol/spoon-recorder</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j-log4j12.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>pentaho-kettle</groupId>
+      <artifactId>kettle-ui-swt</artifactId>
+      <version>${pdi.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.swt</groupId>
+          <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jool-java-8</artifactId>
+      <version>${jooq.version}</version>
+    </dependency>
+  </dependencies>
+
+
+  <profiles>
+    <profile>
+      <id>swt-macos</id>
+      <activation>
+        <os><family>mac</family></os>
+      </activation>
+      <properties>
+        <os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.swt</groupId>
+          <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+          <version>4.6</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>swt-win</id>
+      <activation>
+        <os><family>windows</family></os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.swt</groupId>
+          <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+          <version>4.6</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>swt-linux</id>
+      <activation>
+        <os><family>unix</family></os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.swt</groupId>
+          <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+          <version>4.6</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-Version>${project.version}</Bundle-Version>
+            <Import-Package>org.eclipse.swt*;resolution:=optional,org.pentaho.di.osgi,org.pentaho.di.core.plugins,*
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
