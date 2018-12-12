@@ -28,7 +28,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
@@ -44,7 +43,7 @@ import static org.jooq.lambda.tuple.Tuple.tuple;
 public class WidgetKeyCache {
   private final BiMap<Widget, WidgetKey> widgetMap = Maps.synchronizedBiMap( HashBiMap.create() );
 
-  public Tuple2<Boolean, WidgetKey> get( Control w, WidgetKey parent ) {
+  public Tuple2<Boolean, WidgetKey> get( Widget w, WidgetKey parent ) {
     // todo cleanup
     String text = getText( w );
     boolean present = widgetMap.containsKey( w );
@@ -73,7 +72,7 @@ public class WidgetKeyCache {
       .count();
   }
 
-  private static String tabFolderText( org.eclipse.swt.widgets.Widget w ) {
+  private static String tabFolderText( Widget w ) {
     if ( w instanceof CTabFolder ) {
       CTabFolder folder = (CTabFolder) w;
       return Seq.of( folder.getItems() )
@@ -83,7 +82,7 @@ public class WidgetKeyCache {
     return null;
   }
 
-  private static String tableViewText( org.eclipse.swt.widgets.Widget w ) {
+  private static String tableViewText( Widget w ) {
     if ( w instanceof TableView ) {
       TableView tv = (TableView) w;
       return Seq.of( tv.getColumns() )
@@ -93,7 +92,7 @@ public class WidgetKeyCache {
     return null;
   }
 
-  private static String getText( Control w ) {
+  private static String getText( Widget w ) {
     return coalesce(
       WidgetReflection.getImage( w ),
       WidgetReflection.getText( w ),

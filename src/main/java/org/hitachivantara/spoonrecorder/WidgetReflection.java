@@ -23,22 +23,31 @@
 package org.hitachivantara.spoonrecorder;
 
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
 import org.pentaho.di.ui.core.gui.GUIResource;
 import org.pentaho.di.ui.core.widget.TableView;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.emptyList;
 import static org.jooq.lambda.Seq.seq;
 
+/**
+ * Helper methods for accessing widget fields
+ */
 class WidgetReflection {
 
 
@@ -52,13 +61,16 @@ class WidgetReflection {
   }
 
   static Table getParentTable( Widget w ) {
+    if ( !( w instanceof Control ) ) {
+      return null;
+    }
     Control c = (Control) w;
     boolean foundTable = false;
     while ( c.getParent() != null && !foundTable ) {
       foundTable = c.getParent() instanceof Table;
       c = c.getParent();
     }
-    return  foundTable ? (Table) c : null;
+    return foundTable ? (Table) c : null;
   }
 
   static String getImage( Widget w ) {
@@ -73,6 +85,17 @@ class WidgetReflection {
       }
     }
     return null;
+  }
+
+  public static List<Menu> getMenus( Display display ) {
+    try {
+      Field field = Display.class.getDeclaredField( "menus" );
+      field.setAccessible( true );
+      final Menu[] menus = (Menu[]) field.get( display );
+      return menus == null ? emptyList() : Seq.of( menus ).filter( Objects::nonNull ).toList();
+    } catch ( NoSuchFieldException | IllegalAccessException e ) {
+      return emptyList();
+    }
   }
 
   private static String getTableText( TableView tableView ) {
@@ -95,7 +118,7 @@ class WidgetReflection {
   private static Object getter( Widget w, String methodName ) {
     Optional<Method> m;
     try {
-      m = findMethod( w, methodName );
+      m = findMethod( w.getClass(), methodName );
       if ( m.isPresent() ) {
         return m.get().invoke( w );
 
@@ -106,8 +129,8 @@ class WidgetReflection {
     return null;
   }
 
-  private static Optional<Method> findMethod( Widget w, String methodName ) {
-    return Arrays.stream( w.getClass().getDeclaredMethods() )
+  private static Optional<Method> findMethod( Class<?> clazz, String methodName ) {
+    return Arrays.stream( clazz.getDeclaredMethods() )
       .filter( meth -> meth.getName().equals( methodName ) )
       .filter( meth -> meth.getParameterCount() == 0 )
       .findFirst();

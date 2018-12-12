@@ -26,7 +26,6 @@ import com.google.common.base.Splitter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Widget;
@@ -59,7 +58,7 @@ public class SWTPlayback implements Closeable {
 
   private final Path eventFile;
   private final SWTTreeWatcher watcher;
-  private final Map<String, CompletableFuture<Control>> controls = new ConcurrentHashMap<>();
+  private final Map<String, CompletableFuture<Widget>> widgets = new ConcurrentHashMap<>();
   private final Display display;
   private static final int MAX_WAIT = 2000;
   private Executor executor = Executors.newSingleThreadExecutor();
@@ -75,13 +74,13 @@ public class SWTPlayback implements Closeable {
   }
 
 
-  private void treeAction( Tuple2<Boolean, WidgetKey> k, Control c ) {
+  private void treeAction( Tuple2<Boolean, WidgetKey> k, Widget c ) {
     if ( k != null && k.v2 != null ) {
       final String key = k.v2.keyStr();
-      if ( !controls.containsKey( key ) ) {
-        controls.put( key, new CompletableFuture<>() );
+      if ( !widgets.containsKey( key ) ) {
+        widgets.put( key, new CompletableFuture<>() );
       }
-      controls.get( key ).complete( c );
+      widgets.get( key ).complete( c );
     }
   }
 
@@ -118,10 +117,10 @@ public class SWTPlayback implements Closeable {
     String event = split.get( 1 );
     String val = split.get( 3 );
 
-    controls.putIfAbsent( key, new CompletableFuture<>() );
-    Control c;
+    widgets.putIfAbsent( key, new CompletableFuture<>() );
+    Widget c;
     try {
-      c = getControl( key );
+      c = getWidget( key );
 
       switch ( swtEvent( event ) ) {
         case SWT.MouseDown:
@@ -141,27 +140,27 @@ public class SWTPlayback implements Closeable {
     }
   }
 
-  private Control getControl( String key )
+  private Widget getWidget( String key )
     throws InterruptedException, ExecutionException, TimeoutException {
-    Control c;
-    c = controls.get( key ).get( MAX_WAIT, TimeUnit.MILLISECONDS );
-    if ( c.isDisposed() ) {
+    Widget w;
+    w = widgets.get( key ).get( MAX_WAIT, TimeUnit.MILLISECONDS );
+    if ( w.isDisposed() ) {
       // if displosed, clear it out and see if a new one loads.
       // Possible a new instance of the same control has been created
-      controls.put( key, new CompletableFuture<>() );
-      c = controls.get( key ).get( MAX_WAIT, TimeUnit.MILLISECONDS );
+      widgets.put( key, new CompletableFuture<>() );
+      w = widgets.get( key ).get( MAX_WAIT, TimeUnit.MILLISECONDS );
     }
-    return c;
+    return w;
   }
 
-  private void verify( String line, Control c, String expectedText ) {
+  private void verify( String line, Widget c, String expectedText ) {
     if ( !verifyWithRetries( c, expectedText, MAX_RETRIES ) ) {
       error.set( "Failed on line " + line + "\n"
         + "expected:  " + expectedText + "\nfound:     " + WidgetReflection.getText( c ) );
     }
   }
 
-  private boolean verifyWithRetries( Control c, String expectedText, int retries ) {
+  private boolean verifyWithRetries( Widget c, String expectedText, int retries ) {
     final String actual = WidgetReflection.getText( c );
     if ( expectedText != null && newLineSub( expectedText ).equals( actual ) ) {
       return true;

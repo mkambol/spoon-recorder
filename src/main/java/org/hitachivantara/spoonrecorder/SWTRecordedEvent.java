@@ -50,9 +50,6 @@ public class SWTRecordedEvent {
   }
 
   static SWTRecordedEvent to( WidgetKey key, Event e ) {
-    //    if ( e.widget instanceof Text || e.widget instanceof CCombo ) {
-    //      return new SWTTextEvent( key, e );
-    //    } else
     if ( e.widget instanceof TableView ) {
       return new SWTTableViewEvent( key, e );
     } else if ( e.widget instanceof CTabFolder ) {

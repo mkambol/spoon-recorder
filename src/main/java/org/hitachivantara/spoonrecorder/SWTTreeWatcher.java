@@ -25,6 +25,7 @@ package org.hitachivantara.spoonrecorder;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 
@@ -33,6 +34,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static org.hitachivantara.spoonrecorder.WidgetReflection.getMenus;
+import static org.jooq.lambda.Seq.seq;
 
 public class SWTTreeWatcher implements Closeable {
 
@@ -48,28 +51,38 @@ public class SWTTreeWatcher implements Closeable {
       @Override public void run() {
         display.asyncExec( () ->
           Seq.of( display.getShells() )
-            .forEach( s -> walk( s, WidgetKeyCache.root( s ) ) ) );
+            .forEach( s -> walkShell( s, WidgetKeyCache.root( s ) ) ) );
+        display.asyncExec( () -> walkMenus( display ) );
       }
     }, 0, 10 );
   }
 
-  private void walk( Composite composite, WidgetKey parentKey ) {
+  private void walkMenus( Display display ) {
+    seq( getMenus( display ) )
+      .flatMap( m -> Seq.of( m.getItems() ) )
+      .forEach( menuItem -> {
+        Tuple2<Boolean, WidgetKey> key = keyCache.get( menuItem, null );
+        action.run( key, menuItem );
+      } );
+  }
+
+  private void walkShell( Composite composite, WidgetKey parentKey ) {
     for ( Control c : composite.getChildren() ) {
       Tuple2<Boolean, WidgetKey> key = keyCache.get( c, parentKey );
       action.run( key, c );
 
       if ( c instanceof Composite ) {
-        walk( (Composite) c, firstNonNull( key.v2, parentKey ) );
+        walkShell( (Composite) c, firstNonNull( key.v2, parentKey ) );
       }
     }
   }
 
-  @Override public void close()  {
+  @Override public void close() {
     timer.cancel();
   }
 
   @FunctionalInterface
   interface Action {
-    void run( Tuple2<Boolean, WidgetKey> key, Control control );
+    void run( Tuple2<Boolean, WidgetKey> key, Widget control );
   }
 }
