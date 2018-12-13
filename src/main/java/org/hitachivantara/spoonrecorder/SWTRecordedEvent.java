@@ -30,6 +30,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.di.ui.core.widget.TableView;
 
+import java.util.Set;
+
 public class SWTRecordedEvent {
 
 
@@ -37,11 +39,14 @@ public class SWTRecordedEvent {
   final Event event;
 
   private static BiMap<Integer, String> types =
-    ImmutableBiMap.of(
-      SWT.Modify, "modify",
-      SWT.Selection, "selection",
-      SWT.MouseDoubleClick, "verify",
-      SWT.MouseDown, "mouseDown" );
+    ImmutableBiMap.<Integer, String>builder()
+      .put( SWT.Modify, "modify" )
+      .put( SWT.Selection, "selection" )
+      .put( SWT.MouseDoubleClick, "verify" )
+      .put( SWT.MouseDown, "mouseDown" )
+      .put( SWT.Hide, "hide" )
+      .put( SWT.Close, "close" )
+      .build();
 
 
   private SWTRecordedEvent( WidgetKey key, Event e ) {
@@ -49,7 +54,7 @@ public class SWTRecordedEvent {
     this.event = e;
   }
 
-  static SWTRecordedEvent to( WidgetKey key, Event e ) {
+  public static SWTRecordedEvent to( WidgetKey key, Event e ) {
     if ( e.widget instanceof TableView ) {
       return new SWTTableViewEvent( key, e );
     } else if ( e.widget instanceof CTabFolder ) {
@@ -57,6 +62,10 @@ public class SWTRecordedEvent {
     } else {
       return new SWTRecordedEvent( key, e );
     }
+  }
+
+  static Set<Integer> swtEventTypes() {
+    return types.keySet();
   }
 
   static int swtEvent( String type ) {
@@ -80,7 +89,7 @@ public class SWTRecordedEvent {
   @Override public String toString() {
     return key.keyStr() + "\t" + types.get( event.type )
       + "\t" + event.widget.getClass().getSimpleName() + "\t"
-      + getText() + "\n";
+      + getText() + "\t" + EventSerializer.serialize( event ) + "\n";
   }
 
   public WidgetKey getKey() {

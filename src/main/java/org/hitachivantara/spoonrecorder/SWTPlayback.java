@@ -28,6 +28,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
@@ -108,35 +109,44 @@ public class SWTPlayback implements Closeable {
     if ( error.get() != null ) {
       return;
     }
-
-    sleep( 0 );
+    System.out.println( "line:;  " + line );
+    sleep( 1000 );
 
     List<String> split = Splitter.on( "\t" ).splitToList( line );
     System.out.println( split );
     String key = split.get( 0 );
-    String event = split.get( 1 );
+    String eventName = split.get( 1 );
     String val = split.get( 3 );
+    Event event = EventSerializer.deserialize( split.get( 4 ) );
 
     widgets.putIfAbsent( key, new CompletableFuture<>() );
     Widget c;
     try {
       c = getWidget( key );
 
-      switch ( swtEvent( event ) ) {
-        case SWT.MouseDown:
-          display.syncExec( () -> mouseDown( c, val ) );
-          break;
+      switch ( swtEvent( eventName ) ) {
         case SWT.Modify:
-          display.syncExec( () -> setText( c, val ) );
+          display.asyncExec( () -> setText( c, val ) );
           break;
-        case SWT.MouseDoubleClick:
-          display.syncExec( () -> verify( line, c, val ) );
+        case SWT.Hide:
+          display.asyncExec( () -> hideControl( c, val ) );
+        default:
+          display.asyncExec( () -> generalEvent( c, val, event ) );
           break;
+        //        case SWT.MouseDoubleClick:
+        //          display.asyncExec( () -> verify( line, c, val ) );
+        //          break;
 
       }
     } catch ( InterruptedException | TimeoutException | ExecutionException e ) {
       // Couldn't get control before timeout.  :(
       error.set( "Failed on line " + line + "\n" + e.getMessage() );
+    }
+  }
+
+  private void hideControl( Widget c, String val ) {
+    if ( c instanceof Menu ) {
+      ( (Menu) c ).setVisible( false );
     }
   }
 
@@ -211,7 +221,11 @@ public class SWTPlayback implements Closeable {
   }
 
 
-  private void mouseDown( Widget w, String val ) {
+  private void generalEvent( Widget w, String val, Event event ) {
+    if ( event.type == SWT.MouseDoubleClick && widgetWithTextVerification( w ) ) {
+      verify( "", w, val );
+      return;
+    }
     if ( w instanceof CTabFolder ) {
       final CTabFolder folder = (CTabFolder) w;
       for ( CTabItem item : folder.getItems() ) {
@@ -221,13 +235,11 @@ public class SWTPlayback implements Closeable {
         }
       }
     }
-    Event mouseDown = new Event();
-    mouseDown.type = SWT.MouseDown;
-    mouseDown.widget = w;
+    event.widget = w;
 
-    Seq.of( w.getListeners( SWT.MouseDown ) )
+    Seq.of( w.getListeners( event.type ) )
       .forEach( l ->
-        l.handleEvent( mouseDown ) );
+        l.handleEvent( event ) );
 
     if ( w.getListeners( SWT.MouseDown ).length == 0 ) {
       try {
@@ -239,6 +251,10 @@ public class SWTPlayback implements Closeable {
       }
     }
 
+  }
+
+  private boolean widgetWithTextVerification( Widget w ) {
+    return false;
   }
 
 

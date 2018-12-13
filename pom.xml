@@ -75,6 +75,11 @@
       <artifactId>jool-java-8</artifactId>
       <version>${jooq.version}</version>
     </dependency>
+    <dependency>
+      <groupId>jaxen</groupId>
+      <artifactId>jaxen</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 

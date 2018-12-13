@@ -64,15 +64,24 @@ public class SWTTreeWatcher implements Closeable {
         Tuple2<Boolean, WidgetKey> key = keyCache.get( menuItem, null );
         action.run( key, menuItem );
       } );
+    seq( getMenus( display ) )
+      .forEach( menu -> {
+          Tuple2<Boolean, WidgetKey> key = keyCache.get( menu, null );
+          action.run( key, menu );
+        }
+      );
   }
 
   private void walkShell( Composite composite, WidgetKey parentKey ) {
+    Tuple2<Boolean, WidgetKey> compositeKey = keyCache.get( composite, parentKey );
+    action.run( compositeKey, composite );
+
     for ( Control c : composite.getChildren() ) {
       Tuple2<Boolean, WidgetKey> key = keyCache.get( c, parentKey );
       action.run( key, c );
 
       if ( c instanceof Composite ) {
-        walkShell( (Composite) c, firstNonNull( key.v2, parentKey ) );
+        walkShell( (Composite) c, firstNonNull( key.v2, compositeKey.v2 ) );
       }
     }
   }

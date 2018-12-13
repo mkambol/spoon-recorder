@@ -22,22 +22,22 @@
 
 package org.hitachivantara.spoonrecorder;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.widgets.Canvas;
+import com.google.common.collect.ImmutableList;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Widget;
+import org.hitachivantara.spoonrecorder.handlers.DefaultEventHandler;
+import org.hitachivantara.spoonrecorder.handlers.DropTargetEventHandler;
+import org.hitachivantara.spoonrecorder.handlers.MenuItemEventHandler;
+import org.hitachivantara.spoonrecorder.handlers.RecordEventHandler;
+import org.hitachivantara.spoonrecorder.handlers.TableViewEventHandler;
 import org.jooq.lambda.tuple.Tuple2;
 import org.jooq.lambda.tuple.Tuple3;
-import org.pentaho.di.ui.core.widget.TableView;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -46,13 +46,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EventListener;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.hitachivantara.spoonrecorder.WidgetReflection.getParentTable;
+import static org.jooq.lambda.Seq.seq;
 import static org.jooq.lambda.tuple.Tuple.tuple;
 
 public class SWTRecorder implements Closeable {
@@ -66,6 +66,13 @@ public class SWTRecorder implements Closeable {
   private Set<EventListener> eventListeners = new HashSet<>();
   private AtomicBoolean closed = new AtomicBoolean( false );
 
+  private List<RecordEventHandler> handlers = ImmutableList.of(
+    new TableViewEventHandler(),
+    new MenuItemEventHandler(),
+    new DropTargetEventHandler()
+  );
+  private RecordEventHandler defaultHandler = new DefaultEventHandler();
+
   public SWTRecorder( Shell parent, Path outPath ) {
     this.outPath = outPath;
     this.shell = parent;
@@ -73,6 +80,12 @@ public class SWTRecorder implements Closeable {
 
   public void open() {
     try {
+      shell.addShellListener( new ShellAdapter() {
+        @Override public void shellClosed( ShellEvent shellEvent ) {
+          super.shellClosed( shellEvent );
+        }
+      } );
+
       Files.deleteIfExists( outPath );
       writer = Files.newBufferedWriter( outPath, UTF_8 );
       watcher = new SWTTreeWatcher(
@@ -102,70 +115,29 @@ public class SWTRecorder implements Closeable {
     if ( skipWidgetType( c ) ) {
       return;
     }
+
     if ( key.v1 ) {
-      asList( SWT.MouseDown, SWT.MouseDoubleClick, SWT.Modify )
-        .forEach( listenerForType( key, c ) );
-    }
-  }
-
-  private Consumer<Integer> listenerForType( Tuple2<Boolean, WidgetKey> key, Widget c ) {
-    return type -> {
-      if ( c instanceof Menu ) {
-        addMenuListener( c, key.v2 );
-      } else if ( c instanceof TableView ) {
-        addTableViewListener( c, key.v2 );
-      } else if ( getParentTable( c ) == null ) {
-        final Listener listener = e -> writeEvent( SWTRecordedEvent.to( key.v2, e ) );
-        listeners.add( tuple( type, c, listener ) );
-        c.addListener( type, listener );
+      long attachedCount = seq( SWTRecordedEvent.swtEventTypes() )
+        .crossJoin( handlers )
+        .map( handler -> handler.v2.attachListener( key.v2, c, handler.v1, this::writeEvent ) )
+        .filter( Boolean::booleanValue )
+        .count();
+      if ( attachedCount == 0 && getParentTable( c ) == null ) {
+        // default event handler, used when no type specific handler applies
+        SWTRecordedEvent.swtEventTypes()
+          .forEach( type -> defaultHandler.attachListener( key.v2, c, type, this::writeEvent ) );
       }
-    };
 
-  }
-
-  private void addMenuListener( Widget w, WidgetKey key ) {
+    }
   }
 
 
   private boolean skipWidgetType( Widget c ) {
     return c instanceof Table  // tables are embedded in TableView, no need to capture them twice
       || c instanceof ToolBar  // excluding toolbar and canvas for the time being to avoid
-      || c instanceof Canvas  // some noise.
       || ( c instanceof Combo && ( "100%".equals( ( (Combo) c ).getText() ) ) );
   }
 
-
-  private void addTableViewListener( Widget c, WidgetKey key ) {
-    if ( c instanceof TableView ) {
-      TableView tv = ( (TableView) c );
-      final MouseAdapter mouseListener = new MouseAdapter() {
-        @Override public void mouseDoubleClick( MouseEvent mouseEvent ) {
-          super.mouseDoubleClick( mouseEvent );
-          writeEvent( SWTRecordedEvent.to( key, event( tv, SWT.MouseDoubleClick, mouseEvent.data ) ) );
-        }
-      };
-      eventListeners.add( mouseListener );
-      tv.getTable().addMouseListener( mouseListener );
-      ModifyListener originalModifyListener = tv.getContentListener();
-      final ModifyListener modifyListener = modifyEvent -> {
-        if ( originalModifyListener != null ) {
-          originalModifyListener.modifyText( modifyEvent );
-        }
-        writeEvent( SWTRecordedEvent.to( key, event( tv, SWT.Modify, modifyEvent.data ) ) );
-      };
-      eventListeners.add( modifyListener );
-
-      tv.setContentListener( modifyListener );
-    }
-  }
-
-  private Event event( Widget w, int type, Object data ) {
-    Event e = new Event();
-    e.widget = w;
-    e.type = type;
-    e.data = data;
-    return e;
-  }
 
   private void writeEvent( SWTRecordedEvent recordedEvent ) {
     if ( closed.get() ) {

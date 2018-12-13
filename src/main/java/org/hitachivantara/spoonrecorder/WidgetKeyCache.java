@@ -28,6 +28,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
@@ -92,12 +93,25 @@ public class WidgetKeyCache {
     return null;
   }
 
+  private static String menuText( Widget w ) {
+    if ( w instanceof Menu ) {
+      Menu m = (Menu) w;
+      return Seq.of( m.getItems() )
+        .map( i -> i.getText() )
+        .filter( java.util.Objects::nonNull )
+        .map( name -> name.replace( "\t", " " ) )
+        .collect( Collectors.joining( "," ) );
+    }
+    return null;
+  }
+
   private static String getText( Widget w ) {
     return coalesce(
       WidgetReflection.getImage( w ),
       WidgetReflection.getText( w ),
       tableViewText( w ),
       tabFolderText( w ),
+      menuText( w ),
       "" );
   }
 
