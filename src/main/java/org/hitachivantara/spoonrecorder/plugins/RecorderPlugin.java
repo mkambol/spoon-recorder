@@ -1,4 +1,4 @@
-package org.hitachivantara.spoonrecorder.plugin;
+package org.hitachivantara.spoonrecorder.plugins;
 
 import org.eclipse.swt.widgets.*;
 import org.hitachivantara.spoonrecorder.ui.RecorderShell;

@@ -39,4 +39,8 @@ public class EventTable {
     eventHashColumn.setResizable( true );
     eventTable.setHeaderVisible( true );
   }
+
+  public Table getEventTable() {
+    return this.eventTable;
+  }
 }

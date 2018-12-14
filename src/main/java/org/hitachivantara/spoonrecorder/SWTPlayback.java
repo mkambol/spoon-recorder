@@ -26,11 +26,7 @@ import com.google.common.base.Splitter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.*;
 import org.jooq.lambda.tuple.Tuple2;
 import org.pentaho.di.ui.core.widget.TableView;
 import org.pentaho.di.ui.spoon.Spoon;
@@ -75,9 +71,7 @@ public class SWTPlayback implements Closeable {
     this.eventFile = eventFile;
     this.display = display;
     watcher = new SWTTreeWatcher( display, this::treeAction );
-
   }
-
 
   private void treeAction( Tuple2<Boolean, WidgetKey> k, Widget c ) {
     if ( k != null && k.v2 != null ) {
