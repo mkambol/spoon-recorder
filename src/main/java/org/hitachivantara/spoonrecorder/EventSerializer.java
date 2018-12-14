@@ -31,6 +31,7 @@ public class EventSerializer {
 
   public static class SerializableEvent {
     public int x, y, type, button;
+    public Object data;
 
     static SerializableEvent from( Event event ) {
       SerializableEvent serializableEvent = new SerializableEvent();
@@ -38,6 +39,7 @@ public class EventSerializer {
       serializableEvent.y = event.y;
       serializableEvent.type = event.type;
       serializableEvent.button = event.button;
+      serializableEvent.data = event.data;
       return serializableEvent;
     }
 
@@ -47,6 +49,7 @@ public class EventSerializer {
       event.y = y;
       event.type = type;
       event.button = button;
+      event.data = data;
       return event;
     }
 

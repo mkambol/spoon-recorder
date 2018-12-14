@@ -27,7 +27,13 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Widget;
 import org.hitachivantara.spoonrecorder.handlers.DefaultEventHandler;
 import org.hitachivantara.spoonrecorder.handlers.DropTargetEventHandler;
 import org.hitachivantara.spoonrecorder.handlers.MenuItemEventHandler;
@@ -137,6 +143,7 @@ public class SWTRecorder implements Closeable {
   private boolean skipWidgetType( Widget c ) {
     return c instanceof Table  // tables are embedded in TableView, no need to capture them twice
       || c instanceof ToolBar  // excluding toolbar and canvas for the time being to avoid
+      || c instanceof ProgressBar
       || ( c instanceof Combo && ( "100%".equals( ( (Combo) c ).getText() ) ) );
   }
 
