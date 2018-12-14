@@ -34,13 +34,14 @@ public class PlaybackComposite extends Composite {
     right.setLayout( new RowLayout( SWT.HORIZONTAL ) );
     GridData gdRight = new GridData( GridData.FILL_BOTH );
     right.setLayoutData( gdRight );
-    
+
     Button uploadBtn = new Button( right, SWT.BORDER );
-    uploadBtn.setText( "Upload File" );
-    uploadBtn.addSelectionListener( new OpenSelectionListener( composite.getParent().getShell() ) );
+    uploadBtn.setText( "Open File" );
+    OpenSelectionListener openListener = new OpenSelectionListener( composite.getParent().getShell(), playbackLogWindow );
+    uploadBtn.addSelectionListener( openListener );
 
     Button playbackBtn = new Button( right, SWT.BORDER );
     playbackBtn.setText( "Playback" );
-    playbackBtn.addSelectionListener( new PlaybackSelectionAdapter( composite.getParent().getShell() ) );
+    playbackBtn.addSelectionListener( new PlaybackSelectionAdapter( composite.getParent().getShell(), openListener ) );
   }
 }
