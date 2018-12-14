@@ -10,12 +10,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
-import org.hitachivantara.spoonrecorder.ui.layout.EventTable;
+import org.hitachivantara.spoonrecorder.adapters.PlaybackSelectionAdapter;
+import org.hitachivantara.spoonrecorder.listeners.OpenSelectionListener;
 
 public class PlaybackComposite extends Composite {
   public PlaybackComposite( Composite composite, int i ) {
     super( composite, SWT.NO_BACKGROUND );
-    GridLayout gridLayout = new GridLayout( 3, true );
+    GridLayout gridLayout = new GridLayout( 4, true );
 
     this.setLayout( gridLayout );
 
@@ -23,7 +24,7 @@ public class PlaybackComposite extends Composite {
     left.setLayout( new FillLayout(  ) );
     left.setBackground( new Color( Display.getCurrent(), 255, 255, 255 ) );
     GridData gd = new GridData( GridData.FILL_BOTH );
-    gd.horizontalSpan = 2;
+    gd.horizontalSpan = 3;
     left.setLayoutData( gd );
 
     Text playbackLogWindow = new Text( left, SWT.BORDER );
@@ -33,7 +34,13 @@ public class PlaybackComposite extends Composite {
     right.setLayout( new RowLayout( SWT.HORIZONTAL ) );
     GridData gdRight = new GridData( GridData.FILL_BOTH );
     right.setLayoutData( gdRight );
+    
     Button uploadBtn = new Button( right, SWT.BORDER );
     uploadBtn.setText( "Upload File" );
+    uploadBtn.addSelectionListener( new OpenSelectionListener( composite.getParent().getShell() ) );
+
+    Button playbackBtn = new Button( right, SWT.BORDER );
+    playbackBtn.setText( "Playback" );
+    playbackBtn.addSelectionListener( new PlaybackSelectionAdapter( composite.getParent().getShell() ) );
   }
 }
