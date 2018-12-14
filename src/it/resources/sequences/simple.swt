@@ -1,0 +1,24 @@
+ROOT.(Shell)Spoon - simpleKtr[0].(Composite)[3].(Composite)[0].(Composite)[0].(SashForm)[0].(Composite)[1].(CTabFolder)simpleKtr[0].(TransGraph)[1].(Composite)[0].(SashForm)[0].(Canvas)[0]	mouseDown	Canvas		{"x":403,"y":155,"type":3,"button":3}
+ROOT.(Menu)&New Hop...,&Edit...,Description...,,Data &Movement,Change Num&ber of Copies to Start...,,&Copy CTRL-C,D&uplicate,&Delete DEL,&Hide,De&tach,,&Input Fields...,&Output Fields...,Sniff Test During Execution,,Chec&k Selected Step(s),,Error Handling...,Previe&w...,,&Align / Distribute,,Mapping...,&Partitions...,&Clusters...[0]	hide	Menu		{"x":0,"y":0,"type":23,"button":0}
+ROOT.(MenuItem)[106]	selection	MenuItem		{"x":0,"y":0,"type":13,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)file[0].(Text)file[0]	mouseDown	Text		{"x":44,"y":6,"type":3,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)file[0].(Text)file[0]	verify	Text	file	{"x":44,"y":6,"type":8,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)file[0].(Text)file[0]	modify	Text	newFilename	{"x":0,"y":0,"type":24,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)txt[0].(Text)txt[0]	mouseDown	Text		{"x":14,"y":10,"type":3,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)txt[0].(Text)txt[0]	verify	Text	txt	{"x":14,"y":10,"type":8,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(TextVar)txt[0].(Text)txt[0]	modify	Text	csv	{"x":0,"y":0,"type":24,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1].(Button)&Show filename(s)...[0]	mouseDown	Button		{"x":100,"y":14,"type":3,"button":1}
+ROOT.(Shell)Output files[0].(Button) &Close [0]	mouseDown	Button		{"x":45,"y":13,"type":3,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[1]	hide	Composite		{"x":0,"y":0,"type":23,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0]	mouseDown	CTabFolder	Fields	{"x":120,"y":8,"type":3,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[3].(Button)&Get Fields [0]	mouseDown	Button		{"x":99,"y":15,"type":3,"button":1}
+ROOT.(Shell)[0].(List)[1]	mouseDown	List		{"x":30,"y":60,"type":3,"button":1}
+ROOT.(Shell)[0].(Shell)[0]	hide	Shell		{"x":0,"y":0,"type":23,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[3]	hide	Composite		{"x":0,"y":0,"type":23,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0]	mouseDown	CTabFolder	Content	{"x":55,"y":9,"type":3,"button":1}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[2].(CCombo)CR+LF terminated (Windows, DOS)[0]	mouseDown	CCombo		{"x":557,"y":7,"type":3,"button":1}
+ROOT.(Shell)[0].(List)[1]	mouseDown	List		{"x":90,"y":27,"type":3,"button":1}
+ROOT.(Shell)[0].(Shell)[0]	hide	Shell		{"x":0,"y":0,"type":23,"button":0}
+ROOT.(Shell)Text file output[0].(CTabFolder)FileContentFields[0].(Composite)[2].(CCombo)CR+LF terminated (Windows, DOS)[0]	modify	CCombo	LF terminated (Unix)	{"x":0,"y":0,"type":24,"button":0}
+ROOT.(Shell)Text file output[0].(Button)  &OK  [0]	mouseDown	Button		{"x":61,"y":13,"type":3,"button":1}
+ROOT.(Shell)Spoon - simpleKtr[0].(Shell)[0]	close	Shell		{"x":0,"y":0,"type":21,"button":0}

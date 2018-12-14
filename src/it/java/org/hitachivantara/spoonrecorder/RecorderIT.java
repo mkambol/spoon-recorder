@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.hitachivantara.spoonrecorder.plugin.RecorderPlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.core.KettleClientEnvironment;
@@ -18,6 +19,7 @@ import org.pentaho.di.core.Props;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleMissingPluginsException;
 import org.pentaho.di.core.exception.KettleXMLException;
+import org.pentaho.di.core.lifecycle.LifecycleException;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.core.variables.Variables;
@@ -61,9 +63,6 @@ public class RecorderIT {
     KettleClientEnvironment.init();
     PluginRegistry.addPluginType( StepPluginType.getInstance() );
     PluginRegistry.init();
-    //    if ( !Props.isInitialized() ) {
-    //      Props.init( 0 );
-    //    }
     spoon = new Spoon();
     spoon.delegates = new SpoonDelegates( spoon );
 
@@ -74,7 +73,6 @@ public class RecorderIT {
 
     spoon.start( commandLineArgs );
 
-    //  shell.setLayout( new FormLayout() );
   }
 
   @Test
@@ -107,10 +105,11 @@ public class RecorderIT {
     } catch ( SWTError error ) {
     }
 
-    try ( SWTPlayback rec = new SWTPlayback( shell.getDisplay(), Paths.get( "/tmp/abcd.swt" ) ) ) {
+    try ( SWTPlayback rec = new SWTPlayback( shell.getDisplay(),
+      Paths.get( getResource( "sequences/simple.swt" ).getAbsolutePath() ) ) ) {
       rec.open();
 
-      while ( !spoon.getShell().isDisposed() ) {
+      while ( spoon.getShell() != null && !spoon.getShell().isDisposed() ) {
         if ( !display.readAndDispatch() ) {
           display.sleep();
         }
@@ -119,31 +118,20 @@ public class RecorderIT {
 
   }
 
-  private TableView addTableView( Composite composite, FormData result ) {
-    TableView tableView = new TableView( new Variables(), composite, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
-      new ColumnInfo[] { new ColumnInfo( "name1", ColumnInfo.COLUMN_TYPE_TEXT, false, false ) }, 5, modifyListener,
-      props );
-    tableView.setLayoutData( result );
-    props.setLook( tableView );
-    return tableView;
-  }
 
+  @Test
+  public void testPlugin() throws LifecycleException {
+    OsHelper.initOsHandlers( display );
+    spoon.open();
+    spoon.openFile( getResource( "simple.ktr" ).getAbsolutePath(), false );
+    RecorderPlugin plugin = new RecorderPlugin();
+    plugin.onEnvironmentInit();
 
-  private Text addText( Composite composite, String content, FormData result ) {
-    Text text = new Text( composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    text.setText( content );
-    text.setLayoutData( result );
-    props.setLook( text );
-    return text;
-  }
-
-  private Button addButton( Composite composite, String text, FormData data ) {
-    Button btn = new Button( composite, SWT.NONE );
-    btn.setText( text );
-    props.setLook( btn );
-    btn.setLayoutData( data );
-    return btn;
-
+    while ( spoon.getShell() != null && !spoon.getShell().isDisposed() ) {
+      if ( !display.readAndDispatch() ) {
+        display.sleep();
+      }
+    }
   }
 
   private static TransMeta getTransMeta( String ktrName ) throws KettleXMLException, KettleMissingPluginsException {

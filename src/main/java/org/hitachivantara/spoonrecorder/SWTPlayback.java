@@ -26,13 +26,14 @@ import com.google.common.base.Splitter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Widget;
-import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 import org.pentaho.di.ui.core.widget.TableView;
+import org.pentaho.di.ui.spoon.Spoon;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -110,7 +111,7 @@ public class SWTPlayback implements Closeable {
       return;
     }
     System.out.println( "line:;  " + line );
-    sleep( 1000 );
+    sleep( 700 );
 
     List<String> split = Splitter.on( "\t" ).splitToList( line );
     System.out.println( split );
@@ -125,22 +126,31 @@ public class SWTPlayback implements Closeable {
       c = getWidget( key );
 
       switch ( swtEvent( eventName ) ) {
+        case SWT.Close:
+          display.asyncExec( () -> closeEvent( c, val, event ) );
+          break;
         case SWT.Modify:
           display.asyncExec( () -> setText( c, val ) );
           break;
         case SWT.Hide:
           display.asyncExec( () -> hideControl( c, val ) );
+          // fall through
         default:
           display.asyncExec( () -> generalEvent( c, val, event ) );
           break;
-        //        case SWT.MouseDoubleClick:
-        //          display.asyncExec( () -> verify( line, c, val ) );
-        //          break;
-
       }
     } catch ( InterruptedException | TimeoutException | ExecutionException e ) {
       // Couldn't get control before timeout.  :(
       error.set( "Failed on line " + line + "\n" + e.getMessage() );
+    }
+  }
+
+  private void closeEvent( Widget c, String val, Event event ) {
+    if ( c == Spoon.getInstance().getShell() ) {
+      System.exit( 0 );
+      // display.close();
+    } else {
+      generalEvent( c, val, event );
     }
   }
 
@@ -237,11 +247,15 @@ public class SWTPlayback implements Closeable {
     }
     event.widget = w;
 
-    Seq.of( w.getListeners( event.type ) )
-      .forEach( l ->
-        l.handleEvent( event ) );
 
-    if ( w.getListeners( SWT.MouseDown ).length == 0 ) {
+    try {
+      Method m = Widget.class.getDeclaredMethod( "sendEvent", Event.class );
+      m.setAccessible( true );
+      m.invoke( w, event );
+    } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
+      e.printStackTrace();
+    }
+    if ( w instanceof Button ) {
       try {
         Method m = Widget.class.getDeclaredMethod( "sendSelection" );
         m.setAccessible( true );
@@ -250,7 +264,6 @@ public class SWTPlayback implements Closeable {
         e.printStackTrace();
       }
     }
-
   }
 
   private boolean widgetWithTextVerification( Widget w ) {
