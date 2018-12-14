@@ -49,6 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,6 +67,8 @@ public class SWTPlayback implements Closeable {
   private Executor executor = Executors.newSingleThreadExecutor();
   private AtomicReference<String> error = new AtomicReference<>();
   private static final int MAX_RETRIES = 5;
+
+  private Semaphore semaphore = new Semaphore( 1 );
 
 
   public SWTPlayback( Display display, Path eventFile ) {
@@ -113,6 +116,8 @@ public class SWTPlayback implements Closeable {
     System.out.println( "line:;  " + line );
     sleep( 700 );
 
+
+
     List<String> split = Splitter.on( "\t" ).splitToList( line );
     System.out.println( split );
     String key = split.get( 0 );
@@ -126,22 +131,45 @@ public class SWTPlayback implements Closeable {
       c = getWidget( key );
 
       switch ( swtEvent( eventName ) ) {
+        case SWT.EraseItem:
+          display.asyncExec( () -> eraseItem( c, val, event ) );
+          break;
         case SWT.Close:
-          display.asyncExec( () -> closeEvent( c, val, event ) );
+          display.syncExec( () -> closeEvent( c, val, event ) );
           break;
         case SWT.Modify:
-          display.asyncExec( () -> setText( c, val ) );
+          display.syncExec( () -> setText( c, val ) );
           break;
         case SWT.Hide:
           display.asyncExec( () -> hideControl( c, val ) );
           // fall through
         default:
-          display.asyncExec( () -> generalEvent( c, val, event ) );
-          break;
+          try {
+        //    semaphore.acquire();
+            display.asyncExec( () -> generalEvent( c, val, event ) );
+            break;
+          } catch ( Exception e ) {
+            e.printStackTrace();
+          }
+
       }
     } catch ( InterruptedException | TimeoutException | ExecutionException e ) {
       // Couldn't get control before timeout.  :(
       error.set( "Failed on line " + line + "\n" + e.getMessage() );
+    }
+  }
+
+  // hacky
+  private void eraseItem( Widget c, String val, Event event ) {
+    if ( c instanceof TableView && val != null ) {
+      try {
+        val = val.replace( "[", "" ).replace( "]", "" );
+        int index = Integer.valueOf( val );
+        ( (TableView) c ).remove( index );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+      }
+
     }
   }
 
@@ -232,37 +260,52 @@ public class SWTPlayback implements Closeable {
 
 
   private void generalEvent( Widget w, String val, Event event ) {
-    if ( event.type == SWT.MouseDoubleClick && widgetWithTextVerification( w ) ) {
-      verify( "", w, val );
-      return;
-    }
-    if ( w instanceof CTabFolder ) {
-      final CTabFolder folder = (CTabFolder) w;
-      for ( CTabItem item : folder.getItems() ) {
-        if ( val.equals( item.getText() ) ) {
-          folder.setSelection( item );
-          return;
+    try {
+      if ( event.type == SWT.MouseDoubleClick && widgetWithTextVerification( w ) ) {
+        verify( "", w, val );
+        semaphore.release();
+        return;
+      }
+      if ( w instanceof CTabFolder ) {
+        final CTabFolder folder = (CTabFolder) w;
+        for ( CTabItem item : folder.getItems() ) {
+          if ( val.equals( item.getText() ) ) {
+            folder.setSelection( item );
+            return;
+          }
         }
       }
-    }
-    event.widget = w;
+      event.widget = w;
 
+      if ( w instanceof Button ) {
+        if ( ( w.getStyle() & SWT.CHECK ) != 0 ) {
+          System.out.println( "CHECKBOXX!!!!" );
+          boolean selection = ( (Button) w ).getSelection();
+          ( (Button) w ).setSelection( !selection );
 
-    try {
-      Method m = Widget.class.getDeclaredMethod( "sendEvent", Event.class );
-      m.setAccessible( true );
-      m.invoke( w, event );
-    } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
-      e.printStackTrace();
-    }
-    if ( w instanceof Button ) {
-      try {
-        Method m = Widget.class.getDeclaredMethod( "sendSelection" );
-        m.setAccessible( true );
-        m.invoke( w );
-      } catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
-        e.printStackTrace();
+        }
+
+        try {
+          Method m = Widget.class.getDeclaredMethod( "sendSelection" );
+          m.setAccessible( true );
+          m.invoke( w );
+        } catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+          e.printStackTrace();
+        }
+      } else {
+        try {
+          Method m = Widget.class.getDeclaredMethod( "sendEvent", Event.class );
+          m.setAccessible( true );
+          m.invoke( w, event );
+        } catch ( NoSuchMethodException | InvocationTargetException | IllegalAccessException e ) {
+          e.printStackTrace();
+        }
       }
+    } catch (Exception e ) {
+      System.out.println("FOO");
+      e.printStackTrace();
+    } finally {
+      semaphore.release();
     }
   }
 

@@ -27,6 +27,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
@@ -38,6 +39,7 @@ import org.hitachivantara.spoonrecorder.handlers.RecordEventHandler;
 import org.hitachivantara.spoonrecorder.handlers.TableViewEventHandler;
 import org.jooq.lambda.tuple.Tuple2;
 import org.jooq.lambda.tuple.Tuple3;
+import org.pentaho.di.ui.core.widget.TableView;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -135,6 +137,7 @@ public class SWTRecorder implements Closeable {
   private boolean skipWidgetType( Widget c ) {
     return c instanceof Table  // tables are embedded in TableView, no need to capture them twice
       || c instanceof ToolBar  // excluding toolbar and canvas for the time being to avoid
+      || c instanceof ProgressBar
       || ( c instanceof Combo && ( "100%".equals( ( (Combo) c ).getText() ) ) );
   }
 

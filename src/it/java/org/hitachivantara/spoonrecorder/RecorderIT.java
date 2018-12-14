@@ -80,11 +80,12 @@ public class RecorderIT {
     OsHelper.initOsHandlers( display );
     spoon.open();
     try {
-      spoon.openFile( getResource( "simple.ktr" ).getAbsolutePath(), false );
+      spoon.openFile( "/Users/matcampbell/dev/mkambol/spoon-recorder/src/it/resources/testrails/T27131405/sample.ktr",
+        false );
     } catch ( SWTError error ) {
     }
 
-    try ( SWTRecorder rec = new SWTRecorder( shell, Paths.get( "/tmp/abcd.swt" ) ) ) {
+    try ( SWTRecorder rec = new SWTRecorder( shell, Paths.get( "/tmp", "abcd.swt" ) ) ) {
       rec.open();
       while ( spoon.getShell() != null && !spoon.getShell().isDisposed() ) {
         if ( !display.readAndDispatch() ) {
@@ -94,6 +95,28 @@ public class RecorderIT {
     } catch ( IOException e ) {
       e.printStackTrace();
     }
+  }
+
+  @Test
+  public void T27131405() throws InterruptedException {
+    OsHelper.initOsHandlers( display );
+    spoon.open();
+    spoon.openFile(
+      getResource( "testrails/T27131405/sample.ktr" ).getAbsolutePath(),
+      false );
+
+    try ( SWTPlayback rec = new SWTPlayback( shell.getDisplay(),
+      getResource( "testrails/T27131405/tr.swt" ).toPath() ) ) {
+      rec.open();
+
+      while ( spoon.getShell() != null && !spoon.getShell().
+        isDisposed() ) {
+        if ( !display.readAndDispatch() ) {
+          display.sleep();
+        }
+      }
+    }
+
   }
 
   @Test

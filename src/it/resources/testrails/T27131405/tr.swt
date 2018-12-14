@@ -1,0 +1,28 @@
+ROOT.(Shell)Spoon - sample[0].(Composite)[3].(Composite)[0].(Composite)[0].(SashForm)[0].(Composite)[1].(CTabFolder)sample[0].(TransGraph)[1].(Composite)[0].(SashForm)[0].(Canvas)[0]	mouseDown	Canvas		{"x":215,"y":124,"type":3,"button":3,"data":null}
+ROOT.(Menu)&New Hop...,&Edit...,Description...,,Data &Movement,Change Num&ber of Copies to Start...,,&Copy CTRL-C,D&uplicate,&Delete DEL,&Hide,De&tach,,&Input Fields...,&Output Fields...,Sniff Test During Execution,,Chec&k Selected Step(s),,Error Handling...,Previe&w...,,&Align / Distribute,,Mapping...,&Partitions...,&Clusters...[0]	hide	Menu		{"x":0,"y":0,"type":23,"button":0,"data":null}
+ROOT.(MenuItem)[106]	selection	MenuItem		{"x":0,"y":0,"type":13,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(Button)&Get Fields [0]	mouseDown	Button		{"x":36,"y":12,"type":3,"button":1,"data":null}
+ROOT.(Shell)Sample data[0].(Button)  &OK  [0]	mouseDown	Button		{"x":30,"y":8,"type":3,"button":1,"data":null}
+ROOT.(Shell)CSV file input[0].(TextVar)${Internal.Entry.Current.Directory}/input.csv[0].(Text)${Internal.Entry.Current.Directory}/input.csv[0]	modify	Text	${Internal.Entry.Current.Directory}/input.csv	{"x":0,"y":0,"type":24,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	eraseItem	TableView	[0]	{"x":0,"y":0,"type":40,"button":0,"data":"[0]"}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	eraseItem	TableView	[0]	{"x":0,"y":0,"type":40,"button":0,"data":"[0]"}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	eraseItem	TableView	[0]	{"x":0,"y":0,"type":40,"button":0,"data":"[0]"}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	eraseItem	TableView	[0]	{"x":0,"y":0,"type":40,"button":0,"data":"[0]"}
+ROOT.(Shell)CSV file input[0].(Button)&Get Fields [0]	mouseDown	Button		{"x":51,"y":9,"type":3,"button":1,"data":null}
+ROOT.(Shell)Sample data[0].(Button)  &OK  [0]	mouseDown	Button		{"x":37,"y":11,"type":3,"button":1,"data":null}
+ROOT.(Shell)CSV file input[0].(TextVar)${Internal.Entry.Current.Directory}/input.csv[0].(Text)${Internal.Entry.Current.Directory}/input.csv[0]	modify	Text	${Internal.Entry.Current.Directory}/input.csv	{"x":0,"y":0,"type":24,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	eraseItem	TableView	[0]	{"x":0,"y":0,"type":40,"button":0,"data":"[0]"}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	modify	TableView	table[4, 0]=20	{"x":0,"y":0,"type":24,"button":0,"data":"20"}
+ROOT.(Shell)[0].(List)[1]	mouseDown	List		{"x":42,"y":154,"type":3,"button":1,"data":null}
+ROOT.(Shell)[0].(Shell)[0]	hide	Shell		{"x":0,"y":0,"type":23,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	modify	TableView	table[2, 1]=Timestamp	{"x":0,"y":0,"type":24,"button":0,"data":"Timestamp"}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	modify	TableView	table[6, 2]=	{"x":0,"y":0,"type":24,"button":0,"data":""}
+ROOT.(Shell)CSV file input[0].(TableView),,,,,,,,[0]	modify	TableView	table[1, 4]=Foo	{"x":0,"y":0,"type":24,"button":0,"data":"Foo"}
+ROOT.(Shell)CSV file input[0].(Button)&Get Fields [0]	mouseDown	Button		{"x":54,"y":13,"type":3,"button":1,"data":null}
+ROOT.(Shell)New fields were found[0].(Button)  &OK  [0]	mouseDown	Button		{"x":44,"y":11,"type":3,"button":1,"data":null}
+ROOT.(Shell)Sample data[0].(Button)  &OK  [0]	mouseDown	Button		{"x":39,"y":17,"type":3,"button":1,"data":null}
+ROOT.(Shell)CSV file input[0].(TextVar)${Internal.Entry.Current.Directory}/input.csv[0].(Text)${Internal.Entry.Current.Directory}/input.csv[0]	modify	Text	${Internal.Entry.Current.Directory}/input.csv	{"x":0,"y":0,"type":24,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(TextVar)50000[0].(Text)50000[0]	modify	Text	50000	{"x":0,"y":0,"type":24,"button":0,"data":null}
+ROOT.(Shell)CSV file input[0].(Button)  &OK  [0]	mouseDown	Button		{"x":60,"y":17,"type":3,"button":1,"data":null}
+ROOT.(Shell)Spoon - sample[0].(Composite)[3].(Composite)[0].(Composite)[0].(SashForm)[0].(Composite)[0].(CTabFolder)ViewDesign[0].(Composite)[1].(Composite)[1].(Tree)[0]	eraseItem	Tree		{"x":0,"y":175,"type":40,"button":0,"data":null}
+ROOT.(Shell)Spoon - sample[0].(Shell)[0]	close	Shell		{"x":0,"y":0,"type":21,"button":0,"data":null}

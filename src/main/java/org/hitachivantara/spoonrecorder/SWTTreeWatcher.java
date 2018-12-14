@@ -93,6 +93,7 @@ public class SWTTreeWatcher implements Closeable {
   }
 
   @Override public void close() {
+    System.out.println("CLOSING");
     timer.cancel();
   }
 

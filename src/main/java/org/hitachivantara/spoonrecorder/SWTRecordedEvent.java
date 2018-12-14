@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.di.ui.core.widget.TableView;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class SWTRecordedEvent {
@@ -46,6 +47,7 @@ public class SWTRecordedEvent {
       .put( SWT.MouseDown, "mouseDown" )
       .put( SWT.Hide, "hide" )
       .put( SWT.Close, "close" )
+      .put( SWT.EraseItem, "eraseItem" )
       .build();
 
 
@@ -109,7 +111,9 @@ public class SWTRecordedEvent {
 
     @Override protected String getText() {
       TableView tv = (TableView) event.widget;
-      if ( event.type == SWT.MouseDoubleClick ) {
+      if ( event.type == SWT.EraseItem ) {
+        return event.data == null ? "" : String.valueOf( event.data );
+      } else if ( event.type == SWT.MouseDoubleClick ) {
         return super.getText();
       } else if ( event.type == SWT.Modify ) {
 
