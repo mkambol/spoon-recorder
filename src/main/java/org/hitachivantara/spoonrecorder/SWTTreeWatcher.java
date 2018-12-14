@@ -24,12 +24,15 @@ package org.hitachivantara.spoonrecorder;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Widget;
 import org.jooq.lambda.Seq;
 import org.jooq.lambda.tuple.Tuple2;
 
 import java.io.Closeable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,6 +60,7 @@ public class SWTTreeWatcher implements Closeable {
     }, 0, 10 );
   }
 
+
   private void walkMenus( Display display ) {
     seq( getMenus( display ) )
       .flatMap( m -> Seq.of( m.getItems() ) )
@@ -73,9 +77,11 @@ public class SWTTreeWatcher implements Closeable {
   }
 
   private void walkShell( Composite composite, WidgetKey parentKey ) {
+    if ( composite.getChildren().length == 0 ) {
+      return;
+    }
     Tuple2<Boolean, WidgetKey> compositeKey = keyCache.get( composite, parentKey );
     action.run( compositeKey, composite );
-
     for ( Control c : composite.getChildren() ) {
       Tuple2<Boolean, WidgetKey> key = keyCache.get( c, parentKey );
       action.run( key, c );
