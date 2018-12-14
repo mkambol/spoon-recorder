@@ -22,15 +22,12 @@
 
 package org.hitachivantara.spoonrecorder;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.*;
 import org.hitachivantara.spoonrecorder.handlers.DefaultEventHandler;
 import org.hitachivantara.spoonrecorder.handlers.DropTargetEventHandler;
 import org.hitachivantara.spoonrecorder.handlers.MenuItemEventHandler;
@@ -44,10 +41,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EventListener;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -59,6 +54,7 @@ public class SWTRecorder implements Closeable {
 
   private final Shell shell;
   private final Path outPath;
+  private Table eventTable;
   private BufferedWriter writer;
   private Tuple2<WidgetKey, String> lastWrittenEvent;
   private SWTTreeWatcher watcher;
@@ -76,6 +72,12 @@ public class SWTRecorder implements Closeable {
   public SWTRecorder( Shell parent, Path outPath ) {
     this.outPath = outPath;
     this.shell = parent;
+  }
+
+  public SWTRecorder( Shell parent, Path outPath, Table eventTable ) {
+    this.outPath = outPath;
+    this.shell = parent;
+    this.eventTable = eventTable;
   }
 
   public void open() {
@@ -151,14 +153,17 @@ public class SWTRecorder implements Closeable {
           // if the same event key has two back to back events, only write the last one.
           // that avoids noisy event sequences where each key press gets recorded.
           writer.write( lastWrittenEvent.v2 );
+          addToTable( lastWrittenEvent.v2 );
         }
         lastWrittenEvent = tuple( recordedEvent.getKey(), recordedEvent.toString() );
       } else {
         if ( lastWrittenEvent != null ) {
           writer.write( lastWrittenEvent.v2 );
+          addToTable( lastWrittenEvent.v2 );
           lastWrittenEvent = null;
         }
         writer.write( event );
+        addToTable( event );
       }
       writer.flush();
     } catch ( IOException e ) {
@@ -166,5 +171,10 @@ public class SWTRecorder implements Closeable {
     }
   }
 
+  private void addToTable( String event ) {
+    List<String> items = Splitter.on( "\t" ).splitToList( event );
 
+    TableItem item = new TableItem( eventTable, SWT.NONE );
+    item.setText( items.stream().toArray( String[]::new ) );
+  }
 }

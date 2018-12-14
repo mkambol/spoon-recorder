@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.hitachivantara.spoonrecorder.plugin.RecorderPlugin;
+import org.hitachivantara.spoonrecorder.plugins.RecorderPlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.di.core.KettleClientEnvironment;

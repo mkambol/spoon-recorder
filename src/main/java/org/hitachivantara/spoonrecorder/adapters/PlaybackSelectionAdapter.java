@@ -5,6 +5,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.hitachivantara.spoonrecorder.SWTPlayback;
 import org.hitachivantara.spoonrecorder.listeners.OpenSelectionListener;
 
@@ -15,7 +16,6 @@ public class PlaybackSelectionAdapter extends SelectionAdapter {
   private Shell recorderShell;
   private OpenSelectionListener openSelectionListener;
 
-  //TODO: dont pass the other listener
   public PlaybackSelectionAdapter( Shell recorderShell, OpenSelectionListener openSelectionListener ) {
     this.recorderShell = recorderShell;
     this.openSelectionListener = openSelectionListener;

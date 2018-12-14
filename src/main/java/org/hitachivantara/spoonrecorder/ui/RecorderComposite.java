@@ -31,8 +31,8 @@ public class RecorderComposite extends Composite {
     GridData gdRight = new GridData( GridData.FILL_BOTH );
     right.setLayoutData( gdRight );
     Button recBtn = new Button( right, SWT.BORDER );
-    recBtn.setText( "Record" );
-    recBtn.addSelectionListener( new RecordSelectionAdapter( composite.getParent().getShell() ) );
+    recBtn.setText( "Start" );
+    recBtn.addSelectionListener( new RecordSelectionAdapter( composite.getParent().getShell(), eventTable.getEventTable() ) );
 
     Button saveBtn = new Button( right, SWT.BORDER );
     saveBtn.setText( "Save" );
